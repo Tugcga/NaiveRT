@@ -36,48 +36,6 @@ void RenderInstance::update_tile_callback(Tile &tile)
 	render_context.NewFragment(fragment);
 }
 
-void add_object_to_scene(X3DObject &xsi_object, NRTEngine &nrt_engine, CTime &eval_time, std::map<ULONG, shared_ptr<material>> &scene_materials, std::map<ULONG, shared_ptr<sphere>> &scene_objects)
-{
-	//try to get material
-	Material xsi_mat = xsi_object.GetMaterial();
-	ULONG mat_id = xsi_mat.GetObjectID();
-	auto it = scene_materials.find(mat_id);
-	shared_ptr<sphere> sph;
-	if (it != scene_materials.end())
-	{
-		shared_ptr<material> mat = it->second;
-		//add sphere to the engine
-		CStatus is_add = add_sphere(nrt_engine, xsi_object, eval_time, mat, scene_objects);
-	}
-	else
-	{
-		log("No material for " + xsi_object.GetName() + ", this is impossible");
-		//no material in the library
-		//in fact it is impossible, because we recognize all materials in the scene
-	}
-}
-
-//create scene from scratch
-void RenderInstance::create_scene(const CRefArray &objects, const Camera &camera, const Property &render_property)
-{
-	set_render_parameters(nrt_engine, buffer, eval_time, render_property);
-	set_camera(nrt_engine, camera, eval_time, render_property.GetParameterValue("aperture", eval_time));
-	recognize_materials(scene_materials, Application().GetActiveProject().GetActiveScene(), nrt_engine);
-
-	//filter objects by type
-	CStringArray families;
-	families.Add(siImplicitGeometryFamily);
-	CRefArray spheres;
-	objects.Filter("nrtSphere", families, "", spheres);
-	for (LONG i = 0; i < spheres.GetCount(); i++)
-	{
-		X3DObject xsi_object(spheres[i]);
-		
-		//add sphere to the list of references
-		add_object_to_scene(xsi_object, nrt_engine, eval_time, scene_materials, scene_objects);
-	}
-}
-
 UpdateType get_update_type(CRef &in_ref)
 {
 	UpdateType to_return = UpdateType::updateType_undefined;
@@ -147,6 +105,48 @@ UpdateType get_update_type(CRef &in_ref)
 	}
 
 	return to_return;
+}
+
+void add_object_to_scene(X3DObject &xsi_object, NRTEngine &nrt_engine, CTime &eval_time, std::map<ULONG, shared_ptr<material>> &scene_materials, std::map<ULONG, shared_ptr<sphere>> &scene_objects)
+{
+	//try to get material
+	Material xsi_mat = xsi_object.GetMaterial();
+	ULONG mat_id = xsi_mat.GetObjectID();
+	auto it = scene_materials.find(mat_id);
+	shared_ptr<sphere> sph;
+	if (it != scene_materials.end())
+	{
+		shared_ptr<material> mat = it->second;
+		//add sphere to the engine
+		CStatus is_add = add_sphere(nrt_engine, xsi_object, eval_time, mat, scene_objects);
+	}
+	else
+	{
+		log("No material for " + xsi_object.GetName() + ", this is impossible");
+		//no material in the library
+		//in fact it is impossible, because we recognize all materials in the scene
+	}
+}
+
+//create scene from scratch
+void RenderInstance::create_scene(const CRefArray &objects, const Camera &camera, const Property &render_property)
+{
+	set_render_parameters(nrt_engine, buffer, eval_time, render_property);
+	set_camera(nrt_engine, camera, eval_time, render_property.GetParameterValue("aperture", eval_time));
+	recognize_materials(scene_materials, Application().GetActiveProject().GetActiveScene(), nrt_engine);
+
+	//filter objects by type
+	CStringArray families;
+	families.Add(siImplicitGeometryFamily);
+	CRefArray spheres;
+	objects.Filter("nrtSphere", families, "", spheres);
+	for (LONG i = 0; i < spheres.GetCount(); i++)
+	{
+		X3DObject xsi_object(spheres[i]);
+
+		//add sphere to the list of references
+		add_object_to_scene(xsi_object, nrt_engine, eval_time, scene_materials, scene_objects);
+	}
 }
 
 CStatus RenderInstance::update_scene(const CRefArray &update_objects, const Property &render_property)

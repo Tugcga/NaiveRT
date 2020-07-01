@@ -1,8 +1,8 @@
 #include "write_image.h"
 #include "logger.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+//#define STB_IMAGE_IMPLEMENTATION
+//#include "stb_image.h"
 
 #define STBI_MSC_SECURE_CRT
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -55,7 +55,7 @@ void write(std::string path, int width, int height, int components, std::vector<
 		else if (ext == "png" || ext == "jpg")
 		{
 			//prepare the buffer
-			stbi_uc* u_pixels = new stbi_uc[pixels.size()];
+			unsigned char* u_pixels = new unsigned char[pixels.size()];
 			for (size_t y = 0; y < height; y++)
 			{
 				for (size_t x = 0; x < width; x++)
