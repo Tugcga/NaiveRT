@@ -2,6 +2,8 @@
 
 This is source code for Softimage addon with simple ray tracing render engine. This engine is based on [this](https://raytracing.github.io/books/RayTracingInOneWeekend.html) tutorial. The main goal of this project not to create a full-featured render engine (Cycles will be better in any case), but create a template for connecting other render engines to Softimage. 
 
+Repository contains already compiled addon. It consists of two files in the /bin/nt-x86-64/ folder.
+
 ## Features
 
 1. Only one type of geometry primitives - spheres.
