@@ -1,0 +1,11 @@
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+GNUmakefile
+.vs
+*.exp
+*.lib
+*.pdb
+Release
+bin/nt-x86-64/Release
