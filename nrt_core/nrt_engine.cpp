@@ -93,30 +93,23 @@ void NRTEngine::render()
 	if (is_camera_init)
 	{
 		is_rendering = true;
+		int finish_steps = 0;
+#pragma omp parallel for shared(finish_steps)
 		for (int j = corner_y + height - 1; j >= corner_y; j--)
 		{
 			Tile tile(corner_x, j, width, 1);
 			for (int i = corner_x; i < corner_x + width; i++)
 			{
 				color pixel_color(0, 0, 0);
-				for (int s = 0; s < samples_per_pixel; s++)
-				{
-					double u = (i + random_double()) / (full_width - 1);
-					double v = (j + random_double()) / (full_height - 1);
-					ray r = cam.get_ray(u, v);
-					if (!abort_flag)
-					{
-						pixel_color += ray_color(r, world, max_depth);
-					}
-					else
-					{
-						j = -1;
-						i = corner_x + width;
-						s = samples_per_pixel;
-					}
-				}
 				if (!abort_flag)
 				{
+					for (int s = 0; s < samples_per_pixel; s++)
+					{
+						double u = (i + random_double()) / (full_width - 1);
+						double v = (j + random_double()) / (full_height - 1);
+						ray r = cam.get_ray(u, v);
+						pixel_color += ray_color(r, world, max_depth);
+					}
 					float r = (float)(pixel_color.x() / samples_per_pixel);
 					float g = (float)(pixel_color.y() / samples_per_pixel);
 					float b = (float)(pixel_color.z() / samples_per_pixel);
@@ -133,7 +126,9 @@ void NRTEngine::render()
 			}
 			if (!abort_flag)
 			{
-				progress_callback((double)(corner_y + height - 1 - j) / (height - 1));
+				//progress_callback((double)(corner_y + height - 1 - j) / (height - 1));
+				finish_steps++;
+				progress_callback((double)(finish_steps) / (height - 1));
 				update_tile_callback(tile);
 			}
 		}
